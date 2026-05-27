@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePublic from "../pages/public/Home";
 import LoginPublic from "../pages/public/Login";
+import RegisterPublic from "../pages/public/Register";
 import AboutPublic from "../pages/public/About";
 import NotFound from "../pages/public/NotFound";
 import AdminDashboard from "../pages/admin/Dashboard";
@@ -23,6 +24,7 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<HomePublic />} />
         <Route path="/login" element={<LoginPublic />} />
+        <Route path="/register" element={<RegisterPublic />} />
         <Route path="/about" element={<AboutPublic />} />
         <Route
           path="/admin/dashboard"

@@ -77,9 +77,9 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-sm text-slate-600">
-          Back to{" "}
-          <Link className="text-slate-900 font-semibold" to="/">
-            Home
+          Don't have an account?{" "}
+          <Link className="text-slate-900 font-semibold" to="/register">
+            Create one
           </Link>
         </p>
       </div>
