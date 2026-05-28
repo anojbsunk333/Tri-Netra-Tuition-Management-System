@@ -1,4 +1,4 @@
 export default function generateToken(user) {
-  // placeholder: return dummy token
-  return `token-for-${user.id || "anon"}`;
+  // Simple token generation (in production, use JWT)
+  return `token-${user.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }

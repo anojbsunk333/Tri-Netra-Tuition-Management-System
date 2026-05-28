@@ -7,13 +7,13 @@
   body,
   #root {
     min-height: 100vh;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #f9fafb;
+    color: #111827;
   }
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-gray-50 text-gray-900 antialiased;
   font-family:
     Inter,
     system-ui,

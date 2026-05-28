@@ -24,6 +24,7 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<HomePublic />} />
         <Route path="/login" element={<LoginPublic />} />
+        <Route path="/login/:role" element={<LoginPublic />} />
         <Route path="/register" element={<RegisterPublic />} />
         <Route path="/about" element={<AboutPublic />} />
         <Route
