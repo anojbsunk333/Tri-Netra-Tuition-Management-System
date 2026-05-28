@@ -76,7 +76,7 @@ export default function TeacherDashboard() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : showLoginForm ? (
           <div className="max-w-md mx-auto rounded-2xl bg-white p-8 shadow-lg border-2 border-primary-200">
             <div className="flex justify-center mb-6">
               <img src="/logo.png" alt="TRI·NETRA" className="h-16 w-auto" />
@@ -131,6 +131,30 @@ export default function TeacherDashboard() {
                 {loading ? "Logging in..." : "Login"}
               </button>
             </form>
+            <button
+              onClick={() => setShowLoginForm(false)}
+              className="mt-4 w-full rounded-2xl border-2 border-gray-300 px-4 py-3 text-gray-700 font-semibold hover:bg-gray-50 transition"
+            >
+              Back
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-white p-8 shadow-lg border-2 border-primary-200 text-center">
+            <div className="flex justify-center mb-6">
+              <img src="/logo.png" alt="TRI·NETRA" className="h-20 w-auto" />
+            </div>
+            <h1 className="text-4xl font-bold text-primary-900">
+              Teacher Dashboard
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Welcome to the teacher portal. Please log in to continue.
+            </p>
+            <button
+              onClick={() => setShowLoginForm(true)}
+              className="mt-6 rounded-2xl bg-primary-600 text-white px-8 py-3 font-semibold hover:bg-primary-700 transition"
+            >
+              Login to Dashboard
+            </button>
           </div>
         )}
       </div>
