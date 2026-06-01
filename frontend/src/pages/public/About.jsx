@@ -90,10 +90,7 @@ export default function About() {
           student to achieve their highest potential. <br />
           <br />
           TRI-NETRA Tuition Center — Godawari-3, Taukhel, Lalitpur 📞 9840456962
-          / 9761498436 🌐 www.trinetratuitioncenter.com You can use the full
-          version for your About page, or I can trim it into a shorter
-          single-paragraph version, translate parts into Nepali, or format it
-          differently — just let me know.
+          / 9761498436 🌐 www.trinetratuitioncenter.com
         </p>
         <div className="mt-6 space-x-3">
           <Link

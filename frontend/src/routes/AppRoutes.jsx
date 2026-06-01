@@ -13,6 +13,7 @@ import AttendanceAdmin from "../pages/admin/Attendance";
 import TeacherDashboard from "../pages/teacher/Dashboard";
 import TeacherAttendance from "../pages/teacher/Attendance";
 import TeacherExams from "../pages/teacher/Exams";
+import TeacherAnnouncements from "../pages/teacher/Announcements";
 import StudentDashboard from "../pages/student/Dashboard";
 import Results from "../pages/student/Results";
 import Profile from "../pages/student/Profile";
@@ -88,6 +89,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute role="teacher">
               <TeacherExams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/announcements"
+          element={
+            <ProtectedRoute role="teacher">
+              <TeacherAnnouncements />
             </ProtectedRoute>
           }
         />

@@ -18,20 +18,6 @@ export default function HomePublic() {
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              className="px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700 transition"
-              to="/login"
-            >
-              Login
-            </Link>
-            <Link
-              className="px-4 py-2 rounded border border-primary-300 text-primary-600 hover:bg-primary-50 transition"
-              to="/about"
-            >
-              About
-            </Link>
-          </div>
         </header>
 
         {user ? (
