@@ -1,16 +1,91 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
+import { getBatches } from "../../services/batchService";
 
 export default function Batches() {
+  const [batches, setBatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadBatches() {
+      try {
+        setLoading(true);
+        const data = await getBatches();
+        setBatches(data);
+      } catch (err) {
+        setError("Unable to load batches.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBatches();
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 p-6">
-        <div className="max-w-6xl mx-auto rounded-2xl bg-white p-8 shadow-lg border-2 border-primary-200">
-          <h1 className="text-3xl font-bold text-primary-900">Batches</h1>
-          <p className="text-gray-600 mt-2">
-            Manage batch schedules, classes, and group assignments.
-          </p>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="rounded-2xl bg-white p-8 shadow-lg border-2 border-primary-200">
+            <h1 className="text-3xl font-bold text-primary-900">Batches</h1>
+            <p className="text-gray-600 mt-2">
+              Review batch schedules and class assignments.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-200">
+            {loading ? (
+              <p className="text-sm text-gray-500">Loading batches...</p>
+            ) : error ? (
+              <p className="text-sm text-red-600">{error}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        Batch
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        Time
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        Teacher
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        Students
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {batches.map((batch) => (
+                      <tr key={batch.id}>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {batch.id}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {batch.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {batch.time}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {batch.teacher}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {batch.students}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>
