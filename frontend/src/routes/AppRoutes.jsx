@@ -8,8 +8,12 @@ import NotFound from "../pages/public/NotFound";
 import AdminDashboard from "../pages/admin/Dashboard";
 import Students from "../pages/admin/Students";
 import Teachers from "../pages/admin/Teachers";
-import Fees from "../pages/admin/Fees";
+import Batches from "../pages/admin/Batches";
 import AttendanceAdmin from "../pages/admin/Attendance";
+import Fees from "../pages/admin/Fees";
+import Exams from "../pages/admin/Exams";
+import Announcements from "../pages/admin/Announcements";
+import Reports from "../pages/admin/Reports";
 import TeacherDashboard from "../pages/teacher/Dashboard";
 import TeacherAttendance from "../pages/teacher/Attendance";
 import TeacherExams from "../pages/teacher/Exams";
@@ -53,6 +57,14 @@ export default function AppRoutes() {
           }
         />
         <Route
+          path="/admin/batches"
+          element={
+            <ProtectedRoute role="admin">
+              <Batches />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/fees"
           element={
             <ProtectedRoute role="admin">
@@ -65,6 +77,30 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute role="admin">
               <AttendanceAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/exams"
+          element={
+            <ProtectedRoute role="admin">
+              <Exams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/announcements"
+          element={
+            <ProtectedRoute role="admin">
+              <Announcements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute role="admin">
+              <Reports />
             </ProtectedRoute>
           }
         />
