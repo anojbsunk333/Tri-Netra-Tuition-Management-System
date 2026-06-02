@@ -9,6 +9,9 @@ export function AuthProvider({ children }) {
       return null;
     }
   });
+  const [token, setToken] = useState(
+    () => localStorage.getItem("authToken") || null,
+  );
 
   useEffect(() => {
     if (user) {
@@ -18,8 +21,21 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem("authToken", token);
+    } else {
+      localStorage.removeItem("authToken");
+    }
+  }, [token]);
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, token, setToken, logout }}>
       {children}
     </AuthContext.Provider>
   );

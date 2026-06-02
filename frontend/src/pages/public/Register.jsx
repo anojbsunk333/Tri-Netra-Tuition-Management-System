@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { registerUser } from "../../api/api";
+import { register } from "../../services/authService";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -11,7 +11,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const { setUser } = useAuth();
+  const { setUser, setToken } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,12 +21,13 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await registerUser(name, email, password, role);
+      const response = await register(name, email, password, role);
 
       if (response.success) {
         setSuccess("Account created successfully! Redirecting...");
         // Store user in context
         setUser(response.user);
+        setToken(response.token);
         // Redirect after brief delay
         setTimeout(() => {
           navigate(`/${role}/dashboard`);

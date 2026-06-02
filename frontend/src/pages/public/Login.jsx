@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { loginUser } from "../../api/api";
+import { login } from "../../services/authService";
 
 const validRoles = ["admin", "teacher", "student"];
 
@@ -10,7 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, setUser } = useAuth();
+  const { user, setUser, setToken } = useAuth();
   const navigate = useNavigate();
   const { role: routeRole } = useParams();
   const role = validRoles.includes(routeRole) ? routeRole : null;
@@ -35,7 +35,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await loginUser(email, password);
+      const response = await login(email, password);
 
       if (response.success) {
         // Check if user's role matches the selected role
@@ -48,6 +48,7 @@ export default function Login() {
         }
 
         setUser(response.user);
+        setToken(response.token);
         navigate(`/${role}/dashboard`);
       } else {
         setError(response.message || "Login failed");

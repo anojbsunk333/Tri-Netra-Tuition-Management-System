@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePublic from "../pages/public/Home";
-import LoginPublic from "../pages/public/Login";
-import RegisterPublic from "../pages/public/Register";
-import AboutPublic from "../pages/public/About";
+import LandingPage from "../pages/public/LandingPage";
+import LoginPage from "../pages/public/LoginPage";
+import RegisterPage from "../pages/public/Register";
+import AboutPage from "../pages/public/AboutPage";
 import NotFound from "../pages/public/NotFound";
-import AdminDashboard from "../pages/admin/Dashboard";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 import Students from "../pages/admin/Students";
 import Teachers from "../pages/admin/Teachers";
 import Batches from "../pages/admin/Batches";
@@ -14,150 +14,150 @@ import Fees from "../pages/admin/Fees";
 import Exams from "../pages/admin/Exams";
 import Announcements from "../pages/admin/Announcements";
 import Reports from "../pages/admin/Reports";
-import TeacherDashboard from "../pages/teacher/Dashboard";
-import TeacherAttendance from "../pages/teacher/Attendance";
-import TeacherExams from "../pages/teacher/Exams";
+import TeacherDashboard from "../pages/teacher/TeacherDashboard";
+import TeacherAttendance from "../pages/teacher/TakeAttendance";
+import TeacherExams from "../pages/teacher/EnterMarks";
 import TeacherAnnouncements from "../pages/teacher/Announcements";
-import StudentDashboard from "../pages/student/Dashboard";
-import Results from "../pages/student/Results";
+import StudentDashboard from "../pages/student/StudentDashboard";
+import MyResults from "../pages/student/Results";
 import Profile from "../pages/student/Profile";
-import ProtectedRoute from "./ProtectedRoute";
+import RoleRoute from "./RoleRoute";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePublic />} />
-        <Route path="/login" element={<LoginPublic />} />
-        <Route path="/login/:role" element={<LoginPublic />} />
-        <Route path="/register" element={<RegisterPublic />} />
-        <Route path="/about" element={<AboutPublic />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/:role" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route
           path="/admin/dashboard"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <AdminDashboard />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/students"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Students />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/teachers"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Teachers />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/batches"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Batches />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/fees"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Fees />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/attendance"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <AttendanceAdmin />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/exams"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Exams />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/announcements"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Announcements />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/admin/reports"
           element={
-            <ProtectedRoute role="admin">
+            <RoleRoute role="admin">
               <Reports />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/teacher/dashboard"
           element={
-            <ProtectedRoute role="teacher">
+            <RoleRoute role="teacher">
               <TeacherDashboard />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/teacher/attendance"
           element={
-            <ProtectedRoute role="teacher">
+            <RoleRoute role="teacher">
               <TeacherAttendance />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/teacher/exams"
           element={
-            <ProtectedRoute role="teacher">
+            <RoleRoute role="teacher">
               <TeacherExams />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/teacher/announcements"
           element={
-            <ProtectedRoute role="teacher">
+            <RoleRoute role="teacher">
               <TeacherAnnouncements />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/student/dashboard"
           element={
-            <ProtectedRoute role="student">
+            <RoleRoute role="student">
               <StudentDashboard />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route
           path="/student/results"
           element={
-            <ProtectedRoute role="student">
-              <Results />
-            </ProtectedRoute>
+            <RoleRoute role="student">
+              <MyResults />
+            </RoleRoute>
           }
         />
         <Route
           path="/student/profile"
           element={
-            <ProtectedRoute role="student">
+            <RoleRoute role="student">
               <Profile />
-            </ProtectedRoute>
+            </RoleRoute>
           }
         />
         <Route path="*" element={<NotFound />} />
