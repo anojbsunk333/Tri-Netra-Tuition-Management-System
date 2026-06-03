@@ -21,6 +21,9 @@ import TeacherAnnouncements from "../pages/teacher/Announcements";
 import StudentDashboard from "../pages/student/StudentDashboard";
 import MyResults from "../pages/student/Results";
 import Profile from "../pages/student/Profile";
+import MyAttendance from "../pages/student/MyAttendance";
+import MyFees from "../pages/student/MyFees";
+import StudentAnnouncements from "../pages/student/Announcements";
 import RoleRoute from "./RoleRoute";
 
 export default function AppRoutes() {
@@ -157,6 +160,30 @@ export default function AppRoutes() {
           element={
             <RoleRoute role="student">
               <Profile />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/student/attendance"
+          element={
+            <RoleRoute role="student">
+              <MyAttendance />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/student/fees"
+          element={
+            <RoleRoute role="student">
+              <MyFees />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/student/announcements"
+          element={
+            <RoleRoute role="student">
+              <StudentAnnouncements />
             </RoleRoute>
           }
         />
