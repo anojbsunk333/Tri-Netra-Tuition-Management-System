@@ -42,6 +42,7 @@ temp/
 # Operating system files
 .DS_Store
 Thumbs.db
+/nul
 
 # Local editor settings
 .continue/
