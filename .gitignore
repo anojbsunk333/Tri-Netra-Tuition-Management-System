@@ -12,6 +12,9 @@ node_modules/
 
 # Local database and private data
 backend/data/db.json
+*.sqlite
+*.sqlite3
+*.db
 
 # Build output
 dist/
@@ -33,6 +36,8 @@ temp/
 # Private keys and certificates
 *.pem
 *.key
+*.p12
+*.pfx
 
 # Operating system files
 .DS_Store
