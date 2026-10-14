@@ -15,6 +15,7 @@ import Exams from "../pages/admin/Exams";
 import Announcements from "../pages/admin/Announcements";
 import Reports from "../pages/admin/Reports";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard";
+import TeacherStudents from "../pages/teacher/Students";
 import TeacherAttendance from "../pages/teacher/TakeAttendance";
 import TeacherExams from "../pages/teacher/EnterMarks";
 import TeacherAnnouncements from "../pages/teacher/Announcements";
@@ -25,6 +26,7 @@ import MyAttendance from "../pages/student/MyAttendance";
 import MyFees from "../pages/student/MyFees";
 import StudentAnnouncements from "../pages/student/Announcements";
 import RoleRoute from "./RoleRoute";
+import StudentProfile from "../pages/admin/StudentProfile";
 
 export default function AppRoutes() {
   return (
@@ -35,6 +37,14 @@ export default function AppRoutes() {
         <Route path="/login/:role" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route
+          path="/admin/students/:id"
+          element={
+            <RoleRoute role="admin">
+              <StudentProfile />
+            </RoleRoute>
+          }
+        />
         <Route
           path="/admin/dashboard"
           element={
@@ -112,6 +122,14 @@ export default function AppRoutes() {
           element={
             <RoleRoute role="teacher">
               <TeacherDashboard />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/teacher/students"
+          element={
+            <RoleRoute role="teacher">
+              <TeacherStudents />
             </RoleRoute>
           }
         />

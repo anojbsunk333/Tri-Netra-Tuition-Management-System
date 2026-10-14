@@ -88,15 +88,6 @@ export default function Login() {
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-sm text-gray-600 text-center">
-            Don't have an account?{" "}
-            <Link
-              className="text-primary-600 font-semibold hover:text-primary-700"
-              to="/register"
-            >
-              Create one
-            </Link>
-          </p>
         </div>
       </div>
     );
@@ -158,16 +149,6 @@ export default function Login() {
             {loading ? "Signing in..." : "Continue"}
           </button>
         </form>
-
-        <p className="mt-6 text-sm text-gray-600 text-center">
-          Don't have an account?{" "}
-          <Link
-            className="text-primary-600 font-semibold hover:text-primary-700"
-            to="/register"
-          >
-            Create one
-          </Link>
-        </p>
       </div>
     </div>
   );

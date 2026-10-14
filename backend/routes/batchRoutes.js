@@ -10,19 +10,19 @@ import {
 } from "../controllers/batchController.js";
 
 const router = express.Router();
-router.get("/", listBatches);
-router.get("/:id", getBatch);
-router.post(
+router.get(
   "/",
   authMiddleware,
   roleMiddleware(["admin", "teacher"]),
-  createBatch,
+  listBatches,
 );
-router.put(
+router.get(
   "/:id",
   authMiddleware,
   roleMiddleware(["admin", "teacher"]),
-  updateBatch,
+  getBatch,
 );
+router.post("/", authMiddleware, roleMiddleware("admin"), createBatch);
+router.put("/:id", authMiddleware, roleMiddleware("admin"), updateBatch);
 router.delete("/:id", authMiddleware, roleMiddleware("admin"), deleteBatch);
 export default router;

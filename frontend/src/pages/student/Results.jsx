@@ -1,141 +1,158 @@
 import React, { useEffect, useState } from "react";
 import StudentSidebar from "../../components/layout/StudentSidebar";
-import { getExams } from "../../services/examService";
-import Badge from "../../components/Badge";
+import { getMyStudentOverview } from "../../services/studentPortalService";
+
+function formatExamDate(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
 
 export default function Results() {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getExams()
-      .then(setExams)
-      .catch(console.error)
+    getMyStudentOverview()
+      .then(({ exams: results }) => setExams(results || []))
+      .catch(() => setError("Unable to load your results. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
-  // Calculate statistics
-  const totalExams = exams.length || 0;
-  const averageMarks =
-    exams.length > 0
-      ? Math.round(
-          exams.reduce((sum, e) => sum + (e.marks || e.marksObtained || 0), 0) /
-            exams.length,
-        )
-      : 0;
+  const average = exams.length
+    ? Math.round(
+        exams.reduce(
+          (sum, item) =>
+            sum +
+            (Number(item.marks) / Math.max(Number(item.total) || 100, 1)) * 100,
+          0,
+        ) / exams.length,
+      )
+    : 0;
+  const gpa = exams.length
+    ? (
+        exams.reduce((sum, item) => sum + Number(item.gpa || 0), 0) /
+        exams.length
+      ).toFixed(2)
+    : "—";
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <StudentSidebar />
       <main className="flex-1 p-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
+        <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="mb-2 text-4xl font-bold text-gray-900">
               My Results
             </h1>
-            <p className="text-gray-600">
-              View your exam results and academic performance.
-            </p>
+            <p className="text-gray-600">Your published examination results.</p>
           </div>
 
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="rounded-xl bg-white p-6 shadow-md border border-gray-100">
-              <p className="text-gray-600 text-sm">Total Exams</p>
-              <p className="text-3xl font-bold text-primary-900 mt-2">
-                {totalExams}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 shadow-md border border-blue-200">
-              <p className="text-gray-600 text-sm">Average Marks</p>
-              <p className="text-3xl font-bold text-blue-900 mt-2">
-                {averageMarks}%
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 p-6 shadow-md border border-purple-200">
-              <p className="text-gray-600 text-sm">Current Status</p>
-              <p className="text-3xl font-bold text-purple-900 mt-2">
-                ✅ Active
-              </p>
-            </div>
-          </div>
-
-          {/* Results Table */}
-          <div className="rounded-xl bg-white shadow-md border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">Exam Results</h2>
-            </div>
-            {loading ? (
-              <div className="p-6 text-center text-gray-600">
-                Loading results...
+          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              ["Published results", exams.length],
+              ["Average marks", `${average}%`],
+              ["Average GPA", gpa],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-gray-100 bg-white p-6 shadow-md"
+              >
+                <p className="text-sm text-gray-600">{label}</p>
+                <p className="mt-2 text-3xl font-bold text-primary-900">
+                  {value}
+                </p>
               </div>
-            ) : exams.length > 0 ? (
+            ))}
+          </div>
+
+          <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-md">
+            <div className="border-b p-6">
+              <h2 className="text-2xl font-bold">Exam Results</h2>
+            </div>
+
+            {loading ? (
+              <p className="p-6 text-center">Loading results...</p>
+            ) : error ? (
+              <p className="p-6 text-center text-red-600">{error}</p>
+            ) : exams.length ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Subject
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Exam Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Marks
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Grade
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                        Status
-                      </th>
+                      {[
+                        "Exam",
+                        "Subject",
+                        "Date",
+                        "Marks",
+                        "Grade",
+                        "Status",
+                      ].map((heading) => (
+                        <th
+                          key={heading}
+                          className="px-6 py-3 text-left text-sm font-semibold text-gray-700"
+                        >
+                          {heading}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {exams.map((exam, index) => (
-                      <tr key={exam._id || index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          {exam.subject || "Subject"}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {typeof exam.date === "string"
-                            ? new Date(exam.date).toLocaleDateString()
-                            : exam.date || "-"}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {exam.marks || exam.marksObtained || 0} / 100
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className="inline-block px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-semibold">
-                            {exam.grade || "A"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm">
-                          <Badge
-                            status={
-                              (exam.marks || exam.marksObtained || 0) >= 40
-                                ? "paid"
-                                : "due"
-                            }
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y">
+                    {exams.map((exam) => {
+                      const marks = Number(exam.marks);
+                      const total = Number(exam.total);
+                      const passed =
+                        Number.isFinite(marks) &&
+                        Number.isFinite(total) &&
+                        total > 0 &&
+                        marks >= total * 0.4;
+
+                      return (
+                        <tr key={exam.id}>
+                          <td className="px-6 py-4">
+                            {exam.examName || "Exam"}
+                          </td>
+                          <td className="px-6 py-4 font-medium">
+                            {exam.subject}
+                          </td>
+                          <td className="px-6 py-4">
+                            {formatExamDate(exam.date)}
+                          </td>
+                          <td className="px-6 py-4">
+                            {exam.marks} / {exam.total}
+                          </td>
+                          <td className="px-6 py-4">{exam.grade || "—"}</td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${
+                                passed
+                                  ? "border-green-200 bg-green-100 text-green-700"
+                                  : "border-red-200 bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {passed ? "PASS" : "FAIL"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="p-6 text-center text-gray-500">
-                <p className="mb-2">No exam results found yet.</p>
-                <p className="text-sm">
-                  Your results will appear here once exams are graded.
-                </p>
-              </div>
+              <p className="p-8 text-center text-gray-500">
+                No results have been published for your account.
+              </p>
             )}
-          </div>
+          </section>
         </div>
       </main>
     </div>

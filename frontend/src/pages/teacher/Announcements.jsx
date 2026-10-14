@@ -1,27 +1,77 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import TeacherSidebar from "../../components/layout/TeacherSidebar";
+import {
+  createAnnouncement,
+  deleteAnnouncement,
+  getAnnouncements,
+  updateAnnouncement,
+} from "../../services/announcementService";
 
 export default function Announcements() {
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [error, setError] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
-  const handlePostAnnouncement = () => {
+  useEffect(() => {
+    getAnnouncements()
+      .then((data) => setAnnouncements(Array.isArray(data) ? data : []))
+      .catch(() => setError("Unable to load announcements."));
+  }, []);
+
+  const handlePostAnnouncement = async () => {
     if (title.trim() && content.trim()) {
-      const newAnnouncement = {
-        id: Date.now(),
-        title,
-        content,
-        author: user.name,
-        date: new Date().toLocaleDateString(),
-      };
-      setAnnouncements([newAnnouncement, ...announcements]);
-      setTitle("");
-      setContent("");
+      try {
+        setPosting(true);
+        setError("");
+        const announcementData = {
+          title: title.trim(),
+          body: content.trim(),
+        };
+        const savedAnnouncement = editingId
+          ? await updateAnnouncement(editingId, announcementData)
+          : await createAnnouncement(announcementData);
+        setAnnouncements((current) =>
+          editingId
+            ? current.map((item) =>
+                item.id === editingId ? savedAnnouncement : item,
+              )
+            : [savedAnnouncement, ...current],
+        );
+        setTitle("");
+        setContent("");
+        setEditingId(null);
+      } catch (err) {
+        setError("Unable to post announcement.");
+      } finally {
+        setPosting(false);
+      }
     }
   };
+
+  function startEditing(announcement) {
+    setEditingId(announcement.id);
+    setTitle(announcement.title || "");
+    setContent(announcement.body || announcement.message || "");
+    setError("");
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm("Delete this announcement?")) return;
+    try {
+      await deleteAnnouncement(id);
+      setAnnouncements((current) => current.filter((item) => item.id !== id));
+    } catch (requestError) {
+      setError(
+        requestError?.response?.data?.message ||
+          "Unable to delete announcement.",
+      );
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -53,10 +103,29 @@ export default function Announcements() {
               />
               <button
                 onClick={handlePostAnnouncement}
+                disabled={posting}
                 className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition font-semibold"
               >
-                Post Announcement
+                {posting
+                  ? "Saving..."
+                  : editingId
+                    ? "Save Changes"
+                    : "Post Announcement"}
               </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingId(null);
+                    setTitle("");
+                    setContent("");
+                  }}
+                  className="ml-2 border border-gray-300 px-6 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+              )}
+              {error && <p className="text-sm text-red-600">{error}</p>}
             </div>
           </div>
 
@@ -79,15 +148,31 @@ export default function Announcements() {
                       <h3 className="text-xl font-semibold text-primary-900">
                         {announcement.title}
                       </h3>
-                      <p className="text-gray-600 mt-2">
-                        {announcement.content}
-                      </p>
+                      <p className="text-gray-600 mt-2">{announcement.body}</p>
                       <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                         <span>By {announcement.author}</span>
                         <span>{announcement.date}</span>
                       </div>
                     </div>
                   </div>
+                  {String(announcement.authorId) === String(user?.id) && (
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(announcement)}
+                        className="border border-gray-300 px-3 py-1 rounded-lg text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(announcement.id)}
+                        className="bg-red-50 px-3 py-1 rounded-lg text-sm text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))
             )}

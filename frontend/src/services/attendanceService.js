@@ -1,26 +1,47 @@
-import axios from "axios";
+import axios from "../api/axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
-
-export async function getAttendanceRecords() {
-  const response = await axios.get(`${API_BASE}/api/attendance`);
+export async function getAttendance() {
+  const response = await axios.get("/api/attendance");
   return response.data;
 }
 
-export async function createAttendanceRecord(recordData) {
-  const response = await axios.post(`${API_BASE}/api/attendance`, recordData);
+export const getAttendanceRecords = getAttendance;
+
+export async function createAttendance(attendanceData) {
+  const response = await axios.post("/api/attendance", attendanceData);
   return response.data;
 }
 
-export async function updateAttendanceRecord(id, recordData) {
-  const response = await axios.put(
-    `${API_BASE}/api/attendance/${id}`,
-    recordData,
+export async function updateAttendance(id, attendanceData) {
+  const response = await axios.put(`/api/attendance/${id}`, attendanceData);
+  return response.data;
+}
+
+export async function deleteAttendance(id) {
+  const response = await axios.delete(`/api/attendance/${id}`);
+  return response.data;
+}
+
+export async function getAttendanceReport(filters = {}) {
+  const params = new URLSearchParams();
+
+  if (filters.month) {
+    params.append("month", filters.month);
+  }
+
+  if (filters.batch && filters.batch !== "all") {
+    params.append("batch", filters.batch);
+  }
+
+  if (filters.studentId) {
+    params.append("studentId", filters.studentId);
+  }
+
+  const query = params.toString();
+
+  const response = await axios.get(
+    `/api/attendance/report${query ? `?${query}` : ""}`,
   );
-  return response.data;
-}
 
-export async function deleteAttendanceRecord(id) {
-  const response = await axios.delete(`${API_BASE}/api/attendance/${id}`);
   return response.data;
 }

@@ -10,8 +10,18 @@ import {
 } from "../controllers/teacherController.js";
 
 const router = express.Router();
-router.get("/", listTeachers);
-router.get("/:id", getTeacher);
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware(["admin", "teacher"]),
+  listTeachers,
+);
+router.get(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["admin", "teacher"]),
+  getTeacher,
+);
 router.post("/", authMiddleware, roleMiddleware("admin"), createTeacher);
 router.put("/:id", authMiddleware, roleMiddleware("admin"), updateTeacher);
 router.delete("/:id", authMiddleware, roleMiddleware("admin"), deleteTeacher);

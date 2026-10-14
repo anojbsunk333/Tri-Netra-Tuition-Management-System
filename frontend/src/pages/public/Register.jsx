@@ -7,7 +7,6 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("student");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -21,7 +20,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await register(name, email, password, role);
+      const response = await register(name, email, password);
 
       if (response.success) {
         setSuccess("Account created successfully! Redirecting...");
@@ -30,7 +29,7 @@ export default function Register() {
         setToken(response.token);
         // Redirect after brief delay
         setTimeout(() => {
-          navigate(`/${role}/dashboard`);
+          navigate("/student/dashboard");
         }, 1000);
       } else {
         setError(response.message || "Registration failed");
@@ -71,81 +70,19 @@ export default function Register() {
           </div>
         )}
 
-        <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-          <label className="block">
-            <span className="text-sm font-semibold text-gray-700">
-              Full name
-            </span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              disabled={loading}
-              className="mt-2 w-full rounded-2xl border-2 border-primary-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </label>
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          Public registration is currently disabled. Please contact the
+          administrator to create an account.
+        </div>
 
-          <label className="block">
-            <span className="text-sm font-semibold text-gray-700">Email</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-              className="mt-2 w-full rounded-2xl border-2 border-primary-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-gray-700">
-              Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              minLength={6}
-              className="mt-2 w-full rounded-2xl border-2 border-primary-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-semibold text-gray-700">Role</span>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              disabled={loading}
-              className="mt-2 w-full rounded-2xl border-2 border-primary-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="admin">Admin</option>
-              <option value="teacher">Teacher</option>
-              <option value="student">Student</option>
-            </select>
-          </label>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-2xl bg-primary-600 px-4 py-3 text-white font-semibold hover:bg-primary-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Creating account..." : "Create account"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-sm text-gray-600 text-center">
-          Already have an account?{" "}
+        <div className="mt-6">
           <Link
-            className="text-primary-600 font-semibold hover:text-primary-700"
             to="/login"
+            className="block w-full rounded-2xl bg-primary-600 px-4 py-3 text-center font-semibold text-white hover:bg-primary-700 transition"
           >
-            Sign in
+            Back to Login
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

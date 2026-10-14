@@ -1,10 +1,11 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Sidebar() {
-  const { setUser } = useAuth();
+  const { logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { icon: "🏠", label: "Dashboard", path: "/admin/dashboard" },
@@ -46,7 +47,10 @@ export default function Sidebar() {
 
       <div className="p-4 border-t border-primary-200">
         <button
-          onClick={() => setUser(null)}
+          onClick={() => {
+            logout();
+            navigate("/login");
+          }}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition font-semibold"
         >
           <span className="text-lg">🚪</span>

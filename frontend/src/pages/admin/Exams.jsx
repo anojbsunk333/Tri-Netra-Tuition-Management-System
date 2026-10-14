@@ -48,6 +48,9 @@ export default function Exams() {
                         ID
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        Exam Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                         Student
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
@@ -66,6 +69,9 @@ export default function Exams() {
                       <tr key={exam.id}>
                         <td className="px-4 py-3 text-sm text-gray-700">
                           {exam.id}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {exam.examName || "N/A"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
                           {exam.name}

@@ -16,9 +16,13 @@ function getGreeting() {
   return "Good Evening";
 }
 
-// Get Nepali date
 function getNepaliDate() {
-  return "Baisakh 28, 2082 · Friday";
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date());
 }
 
 export default function TeacherDashboard() {
@@ -29,7 +33,6 @@ export default function TeacherDashboard() {
   const [attendance, setAttendance] = useState([]);
   const [exams, setExams] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
-  const [attendanceTaken, setAttendanceTaken] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,28 +64,66 @@ export default function TeacherDashboard() {
 
   if (!user) return null;
 
-  const totalStudents = students.length || 42;
-  const presentToday = Math.floor(totalStudents * 0.9) || 38;
-  const absentToday = totalStudents - presentToday || 4;
-  const classAvgGpa = 3.2;
-  const announcementsThisMonth = announcements.length || 2;
-  const lowAttendanceStudents = 3;
+  const totalStudents = students.length;
+  const latestAttendanceDate = attendance.reduce(
+    (latest, record) => (record.date > latest ? record.date : latest),
+    "",
+  );
+  const latestAttendance = attendance.filter(
+    (record) => record.date === latestAttendanceDate,
+  );
+  const presentToday = latestAttendance.filter(
+    (record) => record.status === "present",
+  ).length;
+  const absentToday = latestAttendance.filter(
+    (record) => record.status === "absent",
+  ).length;
+  const classAvgGpa = exams.length
+    ? (
+        exams.reduce((sum, exam) => sum + Number(exam.gpa || 0), 0) /
+        exams.length
+      ).toFixed(2)
+    : "—";
+  const announcementsThisMonth = announcements.length;
+  const lowAttendanceStudents = students.filter(
+    (student) => Number(student.attendance || 0) < 75,
+  ).length;
 
   // Get last 5 exam records
   const recentMarks = (Array.isArray(exams) ? exams : []).slice(0, 5);
 
   // Get recent announcements
-  const myAnnouncements = (Array.isArray(announcements) ? announcements : [])
-    .filter((a) => a.postedBy === user?.name || a.createdBy === user?.name)
-    .slice(0, 3);
+  const myAnnouncements = (
+    Array.isArray(announcements) ? announcements : []
+  ).slice(0, 3);
 
   // Calculate class performance
-  const subjectPerformance = [
-    { subject: "Mathematics", avgMarks: 82 },
-    { subject: "English", avgMarks: 78 },
-    { subject: "Science", avgMarks: 85 },
-    { subject: "History", avgMarks: 80 },
-  ];
+  const subjectPerformance = Object.values(
+    exams.reduce((summary, exam) => {
+      const subject = exam.subject || "Unknown subject";
+      const entry = summary[subject] || { subject, marks: 0, total: 0 };
+      entry.marks += Number(exam.marks || 0);
+      entry.total += Number(exam.total || 0);
+      summary[subject] = entry;
+      return summary;
+    }, {}),
+  ).map((entry) => ({
+    subject: entry.subject,
+    avgMarks: entry.total ? Math.round((entry.marks / entry.total) * 100) : 0,
+  }));
+
+  const attendanceOverview = attendance.slice(-7).map((record) => ({
+    day: record.date || "—",
+    present: record.status === "present" ? 1 : 0,
+    absent: record.status === "absent" ? 1 : 0,
+    date: record.date || "—",
+  }));
+
+  const rankedStudents = students
+    .filter((student) => Number.isFinite(Number(student.gpa)))
+    .sort((first, second) => Number(second.gpa) - Number(first.gpa));
+  const topStudents = rankedStudents.slice(0, 3);
+  const bottomStudents = rankedStudents.slice(-3).reverse();
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -116,13 +157,11 @@ export default function TeacherDashboard() {
             <div className="rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 border border-blue-200 shadow-md hover:shadow-lg transition">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">
-                    👥 My Students
-                  </p>
+                  <p className="text-gray-600 text-sm font-medium">Students</p>
                   <p className="text-3xl font-bold text-blue-900 mt-2">
                     {totalStudents}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Total in batch</p>
+                  <p className="text-xs text-gray-600 mt-1">Total students</p>
                 </div>
                 <div className="text-4xl">👥</div>
               </div>
@@ -152,7 +191,9 @@ export default function TeacherDashboard() {
                   <p className="text-3xl font-bold text-purple-900 mt-2">
                     {classAvgGpa}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Last weekly test</p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Loaded exam records
+                  </p>
                 </div>
                 <div className="text-4xl">🏆</div>
               </div>
@@ -187,7 +228,7 @@ export default function TeacherDashboard() {
                 className="p-6 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold text-lg hover:shadow-lg transition transform hover:scale-105"
               >
                 <div className="text-4xl mb-2">📱</div>
-                Generate QR Code
+                Take Attendance
               </button>
               <button
                 onClick={() => navigate("/teacher/attendance")}
@@ -251,7 +292,7 @@ export default function TeacherDashboard() {
                   </div>
 
                   {/* Attendance Status Alert */}
-                  {!attendanceTaken ? (
+                  {!latestAttendance.length ? (
                     <div className="mt-6 p-4 bg-red-50 border-2 border-red-300 rounded-lg flex items-center justify-between">
                       <div>
                         <p className="text-red-900 font-bold">
@@ -289,15 +330,7 @@ export default function TeacherDashboard() {
                   📈 Attendance Overview (Last 14 Days)
                 </h3>
                 <div className="space-y-3">
-                  {[
-                    { day: "Mon", present: 40, absent: 2, date: "Bai 15" },
-                    { day: "Tue", present: 39, absent: 3, date: "Bai 16" },
-                    { day: "Wed", present: 42, absent: 0, date: "Bai 17" },
-                    { day: "Thu", present: 38, absent: 4, date: "Bai 18" },
-                    { day: "Fri", present: 41, absent: 1, date: "Bai 19" },
-                    { day: "Mon", present: 37, absent: 5, date: "Bai 22" },
-                    { day: "Tue", present: 40, absent: 2, date: "Bai 23" },
-                  ].map((item, idx) => (
+                  {attendanceOverview.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4">
                       <span className="w-12 font-bold text-gray-700">
                         {item.day}
@@ -308,20 +341,20 @@ export default function TeacherDashboard() {
                             <div
                               key={`p-${i}`}
                               className="h-6 bg-green-400 rounded-sm"
-                              style={{ width: `${(item.present / 42) * 100}%` }}
+                              style={{ width: `${item.present ? 100 : 0}%` }}
                             ></div>
                           ))}
                           {Array.from({ length: item.absent }).map((_, i) => (
                             <div
                               key={`a-${i}`}
                               className="h-6 bg-red-400 rounded-sm"
-                              style={{ width: `${(item.absent / 42) * 100}%` }}
+                              style={{ width: `${item.absent ? 100 : 0}%` }}
                             ></div>
                           ))}
                         </div>
                       </div>
                       <span className="text-sm font-medium text-gray-600 w-16">
-                        {item.present}/{totalStudents}
+                        {item.present ? "Present" : "Absent"}
                       </span>
                     </div>
                   ))}
@@ -329,7 +362,12 @@ export default function TeacherDashboard() {
                 <div className="mt-4 text-sm text-gray-600">
                   <p>
                     Monthly Attendance:{" "}
-                    <span className="font-bold text-gray-900">91%</span>
+                    <span className="font-bold text-gray-900">
+                      {totalStudents
+                        ? ((presentToday / totalStudents) * 100).toFixed(0)
+                        : 0}
+                      %
+                    </span>
                   </p>
                 </div>
               </div>
@@ -367,15 +405,20 @@ export default function TeacherDashboard() {
                       🌟 Top 3 Students
                     </p>
                     <div className="space-y-2">
-                      <p className="text-sm text-gray-700">
-                        1. Sita Sharma - 4.0 GPA
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        2. Arjun Singh - 3.9 GPA
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        3. Priya Patel - 3.8 GPA
-                      </p>
+                      {topStudents.length ? (
+                        topStudents.map((student, index) => (
+                          <p
+                            key={student.id || student.name}
+                            className="text-sm text-gray-700"
+                          >
+                            {index + 1}. {student.name} - {student.gpa} GPA
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No GPA records available.
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="bg-red-50 p-4 rounded-lg border border-red-200">
@@ -383,15 +426,20 @@ export default function TeacherDashboard() {
                       ⚠️ Bottom 3 Students
                     </p>
                     <div className="space-y-2">
-                      <p className="text-sm text-gray-700">
-                        1. Ramesh Sah - 2.1 GPA
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        2. Neha Gupta - 2.3 GPA
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        3. Vikram Rao - 2.4 GPA
-                      </p>
+                      {bottomStudents.length ? (
+                        bottomStudents.map((student, index) => (
+                          <p
+                            key={student.id || student.name}
+                            className="text-sm text-gray-700"
+                          >
+                            {index + 1}. {student.name} - {student.gpa} GPA
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No GPA records available.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -400,11 +448,11 @@ export default function TeacherDashboard() {
 
             {/* Right Column */}
             <div className="space-y-6">
-              {/* 7. My Students List */}
+              {/* 7. Students List */}
               <div className="rounded-xl bg-white p-6 shadow-md border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-gray-900">
-                    👥 My Students
+                    👥 Students
                   </h3>
                   <button
                     onClick={() => navigate("/teacher/students")}
@@ -414,34 +462,9 @@ export default function TeacherDashboard() {
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {[
-                    {
-                      name: "Sita Sharma",
-                      class: "10",
-                      attendance: 95,
-                      gpa: 4.0,
-                    },
-                    {
-                      name: "Bikash Kumar",
-                      class: "10",
-                      attendance: 88,
-                      gpa: 3.7,
-                    },
-                    {
-                      name: "Anita Patel",
-                      class: "11",
-                      attendance: 92,
-                      gpa: 3.9,
-                    },
-                    {
-                      name: "Ramesh Sah",
-                      class: "9",
-                      attendance: 72,
-                      gpa: 2.1,
-                    },
-                  ].map((student) => (
+                  {students.slice(0, 4).map((student) => (
                     <div
-                      key={student.name}
+                      key={student.id || student.name}
                       className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition cursor-pointer"
                     >
                       <div className="flex items-center justify-between">
@@ -461,10 +484,10 @@ export default function TeacherDashboard() {
                                 : "text-red-600"
                             }`}
                           >
-                            {student.attendance}%
+                            {student.attendance ?? "—"}%
                           </p>
                           <p className="text-xs text-gray-500">
-                            {student.gpa} GPA
+                            {student.gpa ?? "—"} GPA
                           </p>
                         </div>
                       </div>
@@ -503,12 +526,12 @@ export default function TeacherDashboard() {
                       Enter marks for recent exams
                     </p>
                   </div>
-                  <div className="p-3 bg-green-50 border-l-4 border-green-600 rounded">
+                  <div className="p-3 bg-gray-50 border-l-4 border-gray-400 rounded">
                     <p className="text-sm font-bold text-green-900">
-                      🟢 All fees collected this month
+                      ℹ️ Fee data is managed by administrators
                     </p>
                     <p className="text-xs text-green-700 mt-1">
-                      No action needed
+                      Teacher dashboard does not include fee statistics
                     </p>
                   </div>
                 </div>
@@ -563,12 +586,22 @@ export default function TeacherDashboard() {
                         Absent Students:
                       </p>
                       <div className="space-y-1">
-                        <p className="text-xs text-red-700">• Ramesh Sah</p>
-                        <p className="text-xs text-red-700">• Neha Gupta</p>
-                        <p className="text-xs text-red-700">• Vikram Rao</p>
-                        <p className="text-xs text-red-700">• Amar Singh</p>
+                        {latestAttendance
+                          .filter((record) => record.status === "absent")
+                          .slice(0, 4)
+                          .map((record) => (
+                            <p
+                              key={record.studentId}
+                              className="text-xs text-red-700"
+                            >
+                              • {record.name || record.studentId}
+                            </p>
+                          ))}
                       </div>
-                      <button className="mt-3 w-full text-sm bg-red-600 text-white py-1 rounded font-medium hover:bg-red-700 transition">
+                      <button
+                        onClick={() => navigate("/teacher/announcements")}
+                        className="mt-3 w-full text-sm bg-red-600 text-white py-1 rounded font-medium hover:bg-red-700 transition"
+                      >
                         Send Notice
                       </button>
                     </div>
@@ -612,12 +645,9 @@ export default function TeacherDashboard() {
                               : exam.date || "Date"}
                           </p>
                           <p className="text-sm font-bold text-primary-600 mt-1">
-                            Avg: {exam.marks || 82}% · A
+                            {exam.marks}/{exam.total} · {exam.grade || "—"}
                           </p>
                         </div>
-                        <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                          Edit
-                        </button>
                       </div>
                     </div>
                   ))
@@ -660,16 +690,8 @@ export default function TeacherDashboard() {
                               : ann.date || "Date"}
                           </p>
                           <p className="text-xs text-primary-600 font-medium mt-1">
-                            👁️ {Math.floor(Math.random() * 40) + 10} views
+                            {ann.author || "Announcement"}
                           </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                            ✏️
-                          </button>
-                          <button className="text-sm text-red-600 hover:text-red-700 font-medium">
-                            🗑️
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -688,9 +710,15 @@ export default function TeacherDashboard() {
             <h3 className="text-2xl font-bold mb-6">📅 My Batch Schedule</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded-lg border border-white border-opacity-20">
-                <p className="text-sm opacity-90 font-medium">Morning Batch</p>
-                <p className="text-2xl font-bold mt-2">6:00 - 8:00 AM</p>
-                <p className="text-sm opacity-75 mt-2">Class 9, 10, 11</p>
+                <p className="text-sm opacity-90 font-medium">
+                  Configured batch
+                </p>
+                <p className="text-2xl font-bold mt-2">
+                  {user.batch || "Not configured"}
+                </p>
+                <p className="text-sm opacity-75 mt-2">
+                  Assignment data is not available
+                </p>
                 <p className="text-lg font-bold mt-2">
                   {totalStudents} Students
                 </p>
@@ -698,22 +726,30 @@ export default function TeacherDashboard() {
               <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded-lg border border-white border-opacity-20">
                 <p className="text-sm opacity-90 font-medium">Subject</p>
                 <p className="text-2xl font-bold mt-2">
-                  {user.subject || "Math"}
+                  {user.subject || "Not configured"}
                 </p>
-                <p className="text-sm opacity-75 mt-2">Mon - Fri</p>
-                <p className="text-lg font-bold mt-2">5 Days</p>
+                <p className="text-sm opacity-75 mt-2">
+                  Teacher account subject
+                </p>
+                <p className="text-lg font-bold mt-2">
+                  {exams.length} exam records
+                </p>
               </div>
               <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded-lg border border-white border-opacity-20">
                 <p className="text-sm opacity-90 font-medium">Status</p>
-                <p className="text-2xl font-bold mt-2">✅ Active</p>
-                <p className="text-sm opacity-75 mt-2">Year: 2082</p>
-                <p className="text-lg font-bold mt-2">6 Months</p>
+                <p className="text-2xl font-bold mt-2">Authenticated</p>
+                <p className="text-sm opacity-75 mt-2">
+                  No schedule status stored
+                </p>
+                <p className="text-lg font-bold mt-2">
+                  {attendance.length} attendance records
+                </p>
               </div>
               <div className="bg-white bg-opacity-10 backdrop-blur p-4 rounded-lg border border-white border-opacity-20">
                 <p className="text-sm opacity-90 font-medium">Total Hours</p>
-                <p className="text-2xl font-bold mt-2">120 Hrs</p>
-                <p className="text-sm opacity-75 mt-2">Per Month</p>
-                <p className="text-lg font-bold mt-2">10 Hrs/Week</p>
+                <p className="text-2xl font-bold mt-2">—</p>
+                <p className="text-sm opacity-75 mt-2">Hours are not stored</p>
+                <p className="text-lg font-bold mt-2">No schedule data</p>
               </div>
             </div>
           </div>

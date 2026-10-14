@@ -7,12 +7,11 @@ export async function fetchUsers() {
   return res.data;
 }
 
-export async function registerUser(name, email, password, role) {
+export async function registerUser(name, email, password, _role) {
   const res = await axios.post(`${API_BASE}/api/auth/register`, {
     name,
     email,
     password,
-    role,
   });
   return res.data;
 }

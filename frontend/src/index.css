@@ -23,3 +23,36 @@ body {
     "Helvetica Neue",
     Arial;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-overlay,
+  .receipt-overlay * {
+    visibility: visible;
+  }
+
+  .receipt-overlay {
+    position: absolute;
+    inset: 0;
+    display: block;
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .receipt-modal {
+    position: relative;
+    width: 100% !important;
+    max-width: 700px !important;
+    margin: 0 auto !important;
+    padding: 30px !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .receipt-modal button {
+    display: none !important;
+  }
+}
