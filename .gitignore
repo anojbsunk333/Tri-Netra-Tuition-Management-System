@@ -44,4 +44,5 @@ temp/
 Thumbs.db
 
 # Local editor settings
-.vscode/.continue/
+.continue/
+.vscode/
